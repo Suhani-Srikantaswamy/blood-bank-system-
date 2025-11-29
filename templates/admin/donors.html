@@ -1,0 +1,66 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Donors - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="fas fa-users me-2"></i>Donor Management</h2>
+            <a href="{{ url_for('add_donor') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus me-2"></i>Add New Donor
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list me-2"></i>All Donors</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Blood Group</th>
+                                <th>Phone</th>
+                                <th>Last Donation</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donor in donors %}
+                            <tr>
+                                <td><strong class="text-primary">#{{ donor.donor_id }}</strong></td>
+                                <td>{{ donor.name }}</td>
+                                <td>{{ donor.age }}</td>
+                                <td>{{ donor.gender }}</td>
+                                <td><span class="blood-badge">{{ donor.blood_group }}</span></td>
+                                <td>{{ donor.phone or '-' }}</td>
+                                <td class="text-muted">{{ donor.last_donation_date or 'Never' }}</td>
+                                <td>
+                                    {% if donor.last_donation_date %}
+                                        <span class="badge bg-warning">Check Eligibility</span>
+                                    {% else %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Eligible
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

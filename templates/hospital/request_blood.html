@@ -1,0 +1,185 @@
+{% extends "base_dark.html" %}
+
+{% block title %}Request Blood - Hospital{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-arrow-up-circle"></i> Request Blood Transfer</h3>
+                <p class="mb-0 text-muted">Request blood from another hospital in the network</p>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="to_hospital_id" class="form-label">Request From Hospital *</label>
+                            <select class="form-select" id="to_hospital_id" name="to_hospital_id" required>
+                                <option value="">Select Hospital</option>
+                                {% for hospital in hospitals %}
+                                    <option value="{{ hospital.hospital_id }}">
+                                        {{ hospital.hospital_name }} - {{ hospital.city }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Please select a hospital.</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="blood_group" class="form-label">Blood Group *</label>
+                            <select class="form-select" id="blood_group" name="blood_group" required>
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a blood group.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="units_needed" class="form-label">Units Needed *</label>
+                            <input type="number" class="form-control" id="units_needed" name="units_needed" min="1" max="50" required>
+                            <div class="form-text">Enter number of blood units needed (1-50)</div>
+                            <div class="invalid-feedback">Please enter a valid number of units.</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="urgency" class="form-label">Urgency Level *</label>
+                            <select class="form-select" id="urgency" name="urgency" required>
+                                <option value="">Select Urgency</option>
+                                <option value="Low">Low - Routine restocking</option>
+                                <option value="Medium">Medium - Planned surgery</option>
+                                <option value="High">High - Emergency case</option>
+                                <option value="Critical">Critical - Life threatening</option>
+                            </select>
+                            <div class="invalid-feedback">Please select urgency level.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="notes" class="form-label">Additional Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Provide additional context for the request..."></textarea>
+                        <div class="form-text">Optional: Explain the reason for the request</div>
+                    </div>
+                    
+                    <!-- Emergency Protocol -->
+                    <div class="card bg-dark-card border-accent mb-4" id="emergency-protocol" style="display: none;">
+                        <div class="card-body">
+                            <h6 class="text-accent mb-3">
+                                <i class="bi bi-exclamation-triangle"></i> Emergency Protocol
+                            </h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="emergency_confirmed">
+                                <label class="form-check-label" for="emergency_confirmed">
+                                    I confirm this is a genuine emergency requiring immediate blood supply
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="patient_critical">
+                                <label class="form-check-label" for="patient_critical">
+                                    Patient condition is critical and requires immediate intervention
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                            <i class="bi bi-send"></i> Submit Request
+                        </button>
+                        <a href="{{ url_for('hospital_network') }}" class="btn btn-outline-light btn-lg ms-3">
+                            <i class="bi bi-arrow-left"></i> Back to Network
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request Guidelines -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-clock text-accent" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Response Time</h5>
+                <p class="text-muted">
+                    <strong>Critical:</strong> < 30 minutes<br>
+                    <strong>High:</strong> < 2 hours<br>
+                    <strong>Medium:</strong> < 24 hours<br>
+                    <strong>Low:</strong> < 48 hours
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-shield-check text-accent" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Quality Assurance</h5>
+                <p class="text-muted">All blood units are screened and tested before transfer</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-truck text-accent" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">Transport</h5>
+                <p class="text-muted">Temperature-controlled transport ensures blood integrity</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const urgencySelect = document.getElementById('urgency');
+    const emergencyProtocol = document.getElementById('emergency-protocol');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    urgencySelect.addEventListener('change', function() {
+        const urgency = this.value;
+        
+        if (urgency === 'Critical' || urgency === 'High') {
+            emergencyProtocol.style.display = 'block';
+            submitBtn.classList.remove('btn-primary');
+            submitBtn.classList.add('btn-danger');
+            submitBtn.innerHTML = '<i class="bi bi-exclamation-triangle"></i> URGENT REQUEST';
+        } else {
+            emergencyProtocol.style.display = 'none';
+            submitBtn.classList.remove('btn-danger');
+            submitBtn.classList.add('btn-primary');
+            submitBtn.innerHTML = '<i class="bi bi-send"></i> Submit Request';
+        }
+    });
+    
+    // Form validation for emergency requests
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const urgency = urgencySelect.value;
+        
+        if ((urgency === 'Critical' || urgency === 'High')) {
+            const emergencyConfirmed = document.getElementById('emergency_confirmed').checked;
+            const patientCritical = document.getElementById('patient_critical').checked;
+            
+            if (!emergencyConfirmed || !patientCritical) {
+                e.preventDefault();
+                alert('Please confirm emergency protocol checkboxes for high/critical requests.');
+                return false;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

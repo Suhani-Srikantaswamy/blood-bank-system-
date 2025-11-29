@@ -1,0 +1,188 @@
+{% extends "base_premium.html" %}
+
+{% block title %}Hospital Network - BloodBank Pro{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom-dropdown.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-2);">
+        Hospital Network
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem;">
+        View network hospitals and their blood availability
+    </p>
+</div>
+
+<!-- Filters -->
+<div class="card-premium mb-6 animate-fade-in">
+    <div class="card-body-premium">
+        <div class="grid grid-cols-3 gap-4">
+            <div class="form-group-premium">
+                <label for="cityFilter" class="form-label-premium">Filter by City</label>
+                <select class="form-control-premium" id="cityFilter" placeholder="All Cities">
+                    <option value="">All Cities</option>
+                </select>
+            </div>
+            <div class="form-group-premium">
+                <label for="bloodGroupFilter" class="form-label-premium">Filter by Blood Group</label>
+                <select class="form-control-premium" id="bloodGroupFilter" placeholder="All Blood Groups">
+                    <option value="">All Blood Groups</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                </select>
+            </div>
+            <div class="form-group-premium">
+                <label for="searchHospital" class="form-label-premium">Search Hospital</label>
+                <input type="text" class="form-control-premium" id="searchHospital" placeholder="Hospital name...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hospital Network -->
+<div class="card-premium animate-fade-in" style="animation-delay: 0.1s;">
+    <div class="card-header-premium">
+        <h2 class="card-title">
+            <i class="bi bi-diagram-3"></i>
+            Network & Blood Availability
+        </h2>
+    </div>
+    <div class="card-body-premium">
+        {% if hospitals %}
+            <div id="hospitalList" style="display: flex; flex-direction: column; gap: var(--space-4);">
+                {% for hospital in hospitals %}
+                <div class="hospital-item" data-city="{{ hospital.city }}" data-name="{{ hospital.name|lower }}" 
+                     style="padding: var(--space-6); background: var(--bg-primary); border-radius: var(--radius-lg); border-left: 4px solid var(--accent-red); transition: all 0.3s ease;">
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="col-span-2">
+                            <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+                                <i class="bi bi-hospital" style="font-size: 1.5rem; color: var(--accent-red);"></i>
+                                <div>
+                                    <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">
+                                        {{ hospital.name }}
+                                    </h3>
+                                    <p style="color: var(--text-secondary); margin: 0;">
+                                        <i class="bi bi-geo-alt"></i> {{ hospital.city }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: var(--space-2);">
+                                <span style="color: var(--text-primary); font-weight: 500;">Reliability:</span>
+                                <div style="color: var(--warning);">
+                                    {% for i in range(5) %}
+                                        {% if i < (hospital.reliability_score|round) %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span style="color: var(--text-secondary); font-size: 0.875rem;">({{ "%.1f"|format(hospital.reliability_score) }})</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="margin-bottom: var(--space-3);">
+                                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-2);">Available Blood:</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: var(--space-2);">
+                                    {% if hospital.inventory %}
+                                        {% for item in hospital.inventory.split(', ') %}
+                                            {% if item %}
+                                                {% set blood_group, units = item.split(':') %}
+                                                <span class="badge-premium badge-danger" data-blood-group="{{ blood_group }}" style="font-size: 0.75rem;">
+                                                    {{ blood_group }}: {{ units }}
+                                                </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span style="color: var(--text-muted); font-size: 0.875rem;">No inventory data</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: right;">
+                            <a href="{{ url_for('hospital_transfers') }}?hospital_id={{ hospital.hospital_id }}" class="btn-premium btn-primary-premium">
+                                <i class="bi bi-send"></i>
+                                Request Blood
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center" style="padding: var(--space-8);">
+                <i class="bi bi-hospital" style="font-size: 4rem; color: var(--text-muted); margin-bottom: var(--space-4);"></i>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-2);">No other hospitals found in the network</p>
+                <p style="color: var(--text-muted);">Check back later as more hospitals join the network</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Populate city filter
+    const cities = [...new Set(Array.from(document.querySelectorAll('[data-city]')).map(el => el.dataset.city))];
+    const cityFilter = document.getElementById('cityFilter');
+    cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        cityFilter.appendChild(option);
+    });
+
+    // Filter functionality
+    function filterHospitals() {
+        const cityFilter = document.getElementById('cityFilter').value.toLowerCase();
+        const bloodGroupFilter = document.getElementById('bloodGroupFilter').value;
+        const searchFilter = document.getElementById('searchHospital').value.toLowerCase();
+        
+        document.querySelectorAll('.hospital-item').forEach(item => {
+            const city = item.dataset.city.toLowerCase();
+            const name = item.dataset.name;
+            const hasBloodGroup = bloodGroupFilter === '' || 
+                Array.from(item.querySelectorAll('[data-blood-group]')).some(badge => 
+                    badge.dataset.bloodGroup === bloodGroupFilter);
+            
+            const matchesCity = cityFilter === '' || city.includes(cityFilter);
+            const matchesName = searchFilter === '' || name.includes(searchFilter);
+            
+            if (matchesCity && matchesName && hasBloodGroup) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    document.getElementById('cityFilter').addEventListener('change', filterHospitals);
+    document.getElementById('bloodGroupFilter').addEventListener('change', filterHospitals);
+    document.getElementById('searchHospital').addEventListener('input', filterHospitals);
+
+    // Remove old requestBlood function - now using direct links
+
+    // Add hover effects
+    document.querySelectorAll('.hospital-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateX(8px)';
+            this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateX(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
+</script>
+<script src="{{ url_for('static', filename='js/custom-dropdown.js') }}"></script>
+{% endblock %}

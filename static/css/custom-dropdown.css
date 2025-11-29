@@ -1,0 +1,163 @@
+/* Custom Dropdown Styles */
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
+.dropdown-trigger {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #0F141A;
+    border: 2px solid #2A2F36;
+    border-radius: 12px;
+    color: #E6E6E6;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 44px;
+}
+
+.dropdown-trigger:hover {
+    border-color: #E63946;
+}
+
+.dropdown-trigger:focus,
+.custom-dropdown.open .dropdown-trigger {
+    border-color: #E63946;
+    box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
+    background: #161B22;
+}
+
+.dropdown-selected {
+    flex: 1;
+    text-align: left;
+    color: #E6E6E6;
+}
+
+.dropdown-selected:empty::before {
+    content: attr(data-placeholder);
+    color: #8A929E;
+}
+
+.dropdown-arrow {
+    color: #9BA3AF;
+    font-size: 0.875rem;
+    transition: transform 0.2s ease;
+    margin-left: 0.5rem;
+}
+
+.dropdown-menu {
+    position: fixed;
+    background: #161B22;
+    border: 1px solid #2A2F36;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    max-height: 200px;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.15s ease;
+    margin-top: 4px;
+    min-width: 200px;
+}
+
+.custom-dropdown.open .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    color: #E6E6E6;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-bottom: 1px solid rgba(42, 47, 54, 0.5);
+    font-size: 0.875rem;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background: #1E242C;
+    color: #E63946;
+}
+
+.dropdown-item.selected {
+    background: rgba(230, 57, 70, 0.1);
+    color: #E63946;
+}
+
+.dropdown-item.selected:hover {
+    background: rgba(230, 57, 70, 0.15);
+}
+
+/* Scrollbar styling for dropdown menu */
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: #2A2F36;
+    border-radius: 3px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #3A3F46;
+}
+
+/* Ensure dropdowns escape overflow containers */
+.card-premium,
+.form-body,
+.main-content {
+    overflow: visible !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .dropdown-trigger {
+        padding: 0.875rem 1rem;
+        min-height: 48px;
+    }
+    
+    .dropdown-item {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
+
+/* Focus states for accessibility */
+.dropdown-item:focus {
+    outline: 2px solid #E63946;
+    outline-offset: -2px;
+    background: #1E242C;
+}
+
+/* Animation for smooth opening */
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.custom-dropdown.open .dropdown-menu {
+    animation: dropdownFadeIn 0.15s ease-out;
+}

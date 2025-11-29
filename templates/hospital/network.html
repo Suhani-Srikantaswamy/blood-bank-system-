@@ -1,0 +1,114 @@
+{% extends "base_dark.html" %}
+
+{% block title %}Hospital Network - Blood Network{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="bi bi-diagram-3"></i> Hospital Blood Network</h2>
+        <p class="text-muted">View blood availability across all hospitals</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('request_blood') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Request Blood
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if network_data %}
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="networkTable">
+                            <thead>
+                                <tr>
+                                    <th>Hospital</th>
+                                    <th>City</th>
+                                    <th>Blood Group</th>
+                                    <th>Units Available</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for data in network_data %}
+                                <tr>
+                                    <td>{{ data.hospital_name }}</td>
+                                    <td>{{ data.city }}</td>
+                                    <td><span class="blood-group">{{ data.blood_group }}</span></td>
+                                    <td>
+                                        <strong>{{ data.total_units }}</strong>
+                                        {% if data.total_units < 5 %}
+                                            <span class="badge bg-danger">Low Stock</span>
+                                        {% elif data.total_units < 10 %}
+                                            <span class="badge bg-warning">Medium Stock</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Good Stock</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if data.total_units > 0 %}
+                                            <button class="btn btn-sm btn-primary" onclick="requestBlood('{{ data.hospital_name }}', '{{ data.blood_group }}', {{ data.total_units }})">
+                                                <i class="bi bi-arrow-up-circle"></i> Request
+                                            </button>
+                                        {% else %}
+                                            <span class="text-muted">Not Available</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <i class="bi bi-diagram-3 text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3">No Network Data</h4>
+                        <p class="text-muted">No blood availability data found in the network.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Blood Group Summary -->
+{% if network_data %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-bar-chart"></i> Network Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% set blood_groups = network_data | groupby('blood_group') %}
+                    {% for blood_group, items in blood_groups %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="stat-card">
+                                <div class="blood-group">{{ blood_group }}</div>
+                                <div class="stat-number">{{ items | sum(attribute='total_units') }}</div>
+                                <div class="stat-label">Total in Network</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function requestBlood(hospitalName, bloodGroup, availableUnits) {
+    const units = prompt(`Request ${bloodGroup} blood from ${hospitalName}\n\nAvailable: ${availableUnits} units\nHow many units do you need?`);
+    
+    if (units && parseInt(units) > 0 && parseInt(units) <= availableUnits) {
+        window.location.href = `{{ url_for('request_blood') }}?hospital=${encodeURIComponent(hospitalName)}&blood_group=${bloodGroup}&units=${units}`;
+    } else if (units) {
+        alert('Invalid number of units requested.');
+    }
+}
+</script>
+{% endblock %}

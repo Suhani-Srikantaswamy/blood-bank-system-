@@ -1,0 +1,62 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Add Blood Bag - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-plus-circle me-2"></i>Add New Blood Bag</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="donor_id" class="form-label">Donor</label>
+                        <select class="form-control" id="donor_id" name="donor_id" required>
+                            <option value="">Select Donor</option>
+                            {% for donor in donors %}
+                            <option value="{{ donor.donor_id }}">{{ donor.name }} ({{ donor.blood_group }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="blood_group" class="form-label">Blood Group</label>
+                        <select class="form-control" id="blood_group" name="blood_group" required>
+                            <option value="">Select Blood Group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="collected_on" class="form-label">Collection Date</label>
+                        <input type="date" class="form-control" id="collected_on" name="collected_on" required>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Blood bags automatically expire 90 days after collection date.
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin_inventory') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Add Blood Bag
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

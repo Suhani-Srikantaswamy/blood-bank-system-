@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Portal - BloodBank Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-dropdown.css') }}">
+    <style>
+        :root {
+            --bg-primary: #0D1117;
+            --bg-secondary: #161B22;
+            --bg-tertiary: #1F2933;
+            --border-color: #2A2F36;
+            --text-primary: #E6E6E6;
+            --text-secondary: #9BA3AF;
+            --text-muted: #78808C;
+            --accent-red: #C53030;
+            --accent-red-bright: #E63946;
+            --radius: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            background: linear-gradient(135deg, rgba(197, 48, 48, 0.05) 0%, transparent 100%);
+        }
+
+        .hero-icon {
+            font-size: 3rem;
+            color: var(--accent-red);
+            margin-bottom: var(--space-4);
+            filter: drop-shadow(0 4px 8px rgba(197, 48, 48, 0.3));
+        }
+
+        .hero-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .donor-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem 3rem;
+        }
+
+        .donor-form-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-header {
+            padding: var(--space-8) var(--space-6) var(--space-6);
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .form-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .form-body {
+            padding: var(--space-6);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: var(--space-4);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-2);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            background: #0F141A;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 4px rgba(197, 48, 48, 0.1);
+            background: var(--bg-secondary);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .hospital-dropdown {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .hospital-dropdown.show {
+            opacity: 1;
+            max-height: 200px;
+            margin-bottom: var(--space-4);
+        }
+
+        .guidelines-card {
+            background: rgba(197, 48, 48, 0.05);
+            border: 1px solid rgba(197, 48, 48, 0.2);
+            border-radius: var(--radius-lg);
+            margin: var(--space-6) 0;
+            overflow: hidden;
+        }
+
+        .guidelines-header {
+            background: rgba(197, 48, 48, 0.1);
+            padding: var(--space-4) var(--space-6);
+            border-bottom: 1px solid rgba(197, 48, 48, 0.2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .guidelines-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .guidelines-body {
+            padding: var(--space-6);
+        }
+
+        .guidelines-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .guidelines-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .guidelines-list li:before {
+            content: "•";
+            color: var(--accent-red);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, var(--accent-red-bright) 0%, var(--accent-red) 100%);
+            color: white;
+            border: none;
+            padding: var(--space-3) var(--space-5);
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(197, 48, 48, 0.3);
+            margin-top: var(--space-6);
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(197, 48, 48, 0.4);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 1.25rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-4);
+            }
+
+            .form-body {
+                padding: var(--space-4);
+            }
+
+            .donor-container {
+                padding: 0 0.5rem 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-icon">
+            <i class="bi bi-droplet-fill"></i>
+        </div>
+        <h1 class="hero-title">Save Lives. Donate Blood.</h1>
+        <p class="hero-subtitle">Join our community of heroes making a difference every day</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="donor-container">
+        <div class="donor-form-card">
+            <!-- Form Header -->
+            <div class="form-header">
+                <h2 class="form-title">Donor Registration</h2>
+                <p class="form-subtitle">Complete your information to book a donation appointment</p>
+            </div>
+
+            <!-- Form Body -->
+            <div class="form-body">
+                <form method="POST" id="donorForm">
+                    <!-- Personal Information Grid -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-input" id="name" name="name" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age" class="form-label">Age (18-65)</label>
+                            <input type="number" class="form-input" id="age" name="age" min="18" max="65" placeholder="Enter your age" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gender" class="form-label">Gender</label>
+                            <select class="form-input" id="gender" name="gender" placeholder="Select gender" required>
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" id="phone" name="phone" pattern="[0-9]{10}" placeholder="10-digit phone number" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city" class="form-label">City</label>
+                            <select class="form-input" id="city" name="city" placeholder="Select your city" required>
+                                <option value="">Select your city</option>
+                                {% for city in cities %}
+                                <option value="{{ city.city }}">{{ city.city }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="blood_group" class="form-label">Blood Group</label>
+                            <select class="form-input" id="blood_group" name="blood_group" placeholder="Select blood group" required>
+                                <option value="">Select blood group</option>
+                                <option value="A+">A+ (A Positive)</option>
+                                <option value="A-">A- (A Negative)</option>
+                                <option value="B+">B+ (B Positive)</option>
+                                <option value="B-">B- (B Negative) - Rare</option>
+                                <option value="AB+">AB+ (AB Positive)</option>
+                                <option value="AB-">AB- (AB Negative) - Rare</option>
+                                <option value="O+">O+ (O Positive)</option>
+                                <option value="O-">O- (Universal Donor) - Rare</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Hospital Selection (Hidden Initially) -->
+                    <div class="hospital-dropdown" id="hospitalDropdown">
+                        <div class="form-group">
+                            <label for="hospital_id" class="form-label">Nearest Hospital</label>
+                            <select class="form-input" id="hospital_id" name="hospital_id" placeholder="Select nearest hospital" required disabled>
+                                <option value="">Select nearest hospital</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="form-group">
+                        <label for="preferred_time" class="form-label">Preferred Date & Time</label>
+                        <input type="datetime-local" class="form-input" id="preferred_time" name="preferred_time" required>
+                    </div>
+
+                    <!-- Guidelines Card -->
+                    <div class="guidelines-card">
+                        <div class="guidelines-header">
+                            <i class="bi bi-clipboard-check" style="color: var(--accent-red);"></i>
+                            <h3 class="guidelines-title">Donation Guidelines</h3>
+                        </div>
+                        <div class="guidelines-body">
+                            <ul class="guidelines-list">
+                                <li>Must be between 18-65 years of age</li>
+                                <li>Minimum weight requirement: 50kg (110 lbs)</li>
+                                <li>Wait 90 days between blood donations</li>
+                                <li>Bring valid government-issued photo ID</li>
+                                <li>Have a light meal 2-3 hours before donation</li>
+                                <li>Stay hydrated - drink plenty of water</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-button">
+                        <i class="bi bi-heart-fill" style="margin-right: 0.5rem;"></i>
+                        Book My Donation Appointment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set minimum date to today
+        document.getElementById('preferred_time').min = new Date().toISOString().slice(0, 16);
+
+        // Handle city selection and hospital loading
+        document.getElementById('city').addEventListener('change', function() {
+            const city = this.value;
+            const hospitalDropdown = document.getElementById('hospitalDropdown');
+            const hospitalSelect = document.getElementById('hospital_id');
+            
+            if (city) {
+                // Show hospital dropdown with animation
+                hospitalDropdown.classList.add('show');
+                
+                // Fetch hospitals for selected city
+                fetch(`/get_hospitals/${city}`)
+                    .then(response => response.json())
+                    .then(hospitals => {
+                        hospitalSelect.innerHTML = '<option value="">Select nearest hospital</option>';
+                        hospitals.forEach(hospital => {
+                            hospitalSelect.innerHTML += `<option value="${hospital.hospital_id}">${hospital.name}</option>`;
+                        });
+                        hospitalSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error loading hospitals:', error);
+                        hospitalSelect.innerHTML = '<option value="">Error loading hospitals</option>';
+                    });
+            } else {
+                hospitalDropdown.classList.remove('show');
+                hospitalSelect.disabled = true;
+            }
+        });
+
+        // Form validation
+        document.getElementById('donorForm').addEventListener('submit', function(e) {
+            const age = parseInt(document.getElementById('age').value);
+            const phone = document.getElementById('phone').value;
+            
+            if (age < 18 || age > 65) {
+                e.preventDefault();
+                alert('Age must be between 18 and 65 years');
+                return;
+            }
+            
+            if (!/^[0-9]{10}$/.test(phone)) {
+                e.preventDefault();
+                alert('Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            // Add loading state to button
+            const button = this.querySelector('.submit-button');
+            button.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite; margin-right: 0.5rem;"></i>Processing...';
+            button.disabled = true;
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/custom-dropdown.js') }}"></script>
+</body>
+</html>

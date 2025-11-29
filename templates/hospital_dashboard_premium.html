@@ -1,0 +1,207 @@
+{% extends "base_premium.html" %}
+
+{% block title %}Hospital Dashboard - BloodBank Pro{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-2);">
+        Dashboard
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem;">
+        Welcome back, {{ session.user_name }}. Here's your hospital overview.
+    </p>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-4 gap-6 mb-6">
+    <div class="stat-card-premium animate-fade-in">
+        <div class="stat-icon-premium">
+            <i class="bi bi-calendar-check"></i>
+        </div>
+        <div class="stat-number-premium">{{ pending_appointments }}</div>
+        <div class="stat-label-premium">Pending Appointments</div>
+    </div>
+    
+    <div class="stat-card-premium animate-fade-in" style="animation-delay: 0.1s;">
+        <div class="stat-icon-premium">
+            <i class="bi bi-calendar-day"></i>
+        </div>
+        <div class="stat-number-premium">{{ today_appointments }}</div>
+        <div class="stat-label-premium">Today's Appointments</div>
+    </div>
+    
+    <div class="stat-card-premium animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="stat-icon-premium">
+            <i class="bi bi-arrow-down-circle"></i>
+        </div>
+        <div class="stat-number-premium">{{ transfer_summary.incoming_requests }}</div>
+        <div class="stat-label-premium">Incoming Requests</div>
+    </div>
+    
+    <div class="stat-card-premium animate-fade-in" style="animation-delay: 0.3s;">
+        <div class="stat-icon-premium">
+            <i class="bi bi-arrow-up-circle"></i>
+        </div>
+        <div class="stat-number-premium">{{ transfer_summary.outgoing_requests }}</div>
+        <div class="stat-label-premium">Outgoing Requests</div>
+    </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-2 gap-6 mb-6">
+    <!-- Blood Inventory Summary -->
+    <div class="card-premium animate-fade-in" style="animation-delay: 0.4s;">
+        <div class="card-header-premium">
+            <h2 class="card-title">
+                <i class="bi bi-box-seam"></i>
+                Blood Inventory
+            </h2>
+        </div>
+        <div class="card-body-premium">
+            {% if inventory_summary %}
+                <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+                    {% for item in inventory_summary %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-4); background: var(--bg-primary); border-radius: var(--radius); border-left: 4px solid var(--accent-red);">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">
+                                {{ item.blood_group }}
+                            </div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                                {{ item.total_units }} units available
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: var(--space-2);">
+                            {% if item.expiring_soon > 0 %}
+                                <span class="badge-premium badge-warning">{{ item.expiring_soon }} expiring</span>
+                            {% endif %}
+                            {% if item.total_units < 5 %}
+                                <span class="badge-premium badge-danger">Low Stock</span>
+                            {% else %}
+                                <span class="badge-premium badge-success">Healthy</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-6">
+                    <a href="{{ url_for('hospital_inventory') }}" class="btn-premium btn-primary-premium">
+                        <i class="bi bi-plus-circle"></i>
+                        Manage Inventory
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center" style="padding: var(--space-8);">
+                    <i class="bi bi-box" style="font-size: 3rem; color: var(--text-muted); margin-bottom: var(--space-4);"></i>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">No inventory data available</p>
+                    <a href="{{ url_for('hospital_inventory') }}" class="btn-premium btn-primary-premium">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Blood Units
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Blood Urgency Index -->
+    <div class="card-premium animate-fade-in" style="animation-delay: 0.5s;">
+        <div class="card-header-premium">
+            <h2 class="card-title">
+                <i class="bi bi-exclamation-triangle"></i>
+                Blood Urgency Index
+            </h2>
+        </div>
+        <div class="card-body-premium">
+            {% if bui_data %}
+                <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+                    {% for bui in bui_data %}
+                    {% set bui_score = (bui.requested_units - bui.available_units) + (bui.expiring_soon * 2) %}
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 600; color: var(--text-primary);">
+                            {{ bui.blood_group }}
+                        </div>
+                        <div>
+                            {% if bui_score <= 0 %}
+                                <span class="badge-premium badge-success">Safe</span>
+                            {% elif bui_score <= 5 %}
+                                <span class="badge-premium badge-warning">Moderate</span>
+                            {% elif bui_score <= 10 %}
+                                <span class="badge-premium badge-danger">High</span>
+                            {% else %}
+                                <span class="badge-premium badge-danger">Critical</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center" style="padding: var(--space-8);">
+                    <i class="bi bi-shield-check" style="font-size: 3rem; color: var(--success); margin-bottom: var(--space-4);"></i>
+                    <p style="color: var(--text-secondary);">No urgent blood requests</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Rare Donors Section -->
+{% if rare_donors %}
+<div class="card-premium animate-fade-in" style="animation-delay: 0.6s;">
+    <div class="card-header-premium">
+        <h2 class="card-title">
+            <i class="bi bi-gem"></i>
+            Rare Donors in Your City
+        </h2>
+    </div>
+    <div class="card-body-premium">
+        <div style="overflow-x: auto;">
+            <table class="table-premium">
+                <thead>
+                    <tr>
+                        <th>Donor Name</th>
+                        <th>Blood Group</th>
+                        <th>Phone Number</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for donor in rare_donors %}
+                    <tr>
+                        <td style="font-weight: 500; color: var(--text-primary);">{{ donor.name }}</td>
+                        <td>
+                            <span class="badge-premium badge-danger">{{ donor.blood_group }}</span>
+                        </td>
+                        <td style="font-family: monospace;">{{ donor.phone }}</td>
+                        <td>
+                            <button class="btn-premium btn-secondary-premium" onclick="window.open('tel:{{ donor.phone }}')">
+                                <i class="bi bi-telephone"></i>
+                                Contact
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="mt-6">
+    <div class="d-flex gap-4">
+        <a href="{{ url_for('hospital_appointments') }}" class="btn-premium btn-secondary-premium">
+            <i class="bi bi-calendar-plus"></i>
+            View Appointments
+        </a>
+        <a href="{{ url_for('hospital_transfers') }}" class="btn-premium btn-secondary-premium">
+            <i class="bi bi-arrow-left-right"></i>
+            Manage Transfers
+        </a>
+        <a href="{{ url_for('hospital_network') }}" class="btn-premium btn-secondary-premium">
+            <i class="bi bi-diagram-3"></i>
+            Hospital Network
+        </a>
+    </div>
+</div>
+{% endblock %}

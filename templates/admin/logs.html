@@ -1,0 +1,214 @@
+{% extends "base_dark.html" %}
+
+{% block title %}System Logs - Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="bi bi-journal-text"></i> System Activity Logs</h2>
+        <p class="text-muted">Monitor all system activities and transactions</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-info" onclick="exportLogs()">
+            <i class="bi bi-download"></i> Export Logs
+        </button>
+    </div>
+</div>
+
+<!-- Log Filters -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="action_filter" class="form-label">Action Type</label>
+                        <select class="form-select" id="action_filter">
+                            <option value="">All Actions</option>
+                            <option value="DONATION_REQUEST">Donation Requests</option>
+                            <option value="APPOINTMENT_APPROVED">Appointments</option>
+                            <option value="BLOOD_ADDED">Blood Added</option>
+                            <option value="BLOOD_EXPIRED">Blood Expired</option>
+                            <option value="TRANSFER_REQUEST">Transfer Requests</option>
+                            <option value="TRANSFER_APPROVED">Transfer Approved</option>
+                            <option value="HOSPITAL_REGISTERED">Hospital Registered</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="hospital_filter" class="form-label">Hospital</label>
+                        <select class="form-select" id="hospital_filter">
+                            <option value="">All Hospitals</option>
+                            {% for log in logs %}
+                                {% if log.hospital_name %}
+                                    <option value="{{ log.hospital_name }}">{{ log.hospital_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_from" class="form-label">From Date</label>
+                        <input type="date" class="form-control" id="date_from">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="date_to" class="form-label">To Date</label>
+                        <input type="date" class="form-control" id="date_to">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logs Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if logs %}
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="logsTable">
+                            <thead>
+                                <tr>
+                                    <th>Log ID</th>
+                                    <th>Timestamp</th>
+                                    <th>Action Type</th>
+                                    <th>Hospital</th>
+                                    <th>Description</th>
+                                    <th>Related ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td>{{ log.log_id }}</td>
+                                    <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 
+                                            'success' if log.action_type in ['APPOINTMENT_APPROVED', 'TRANSFER_APPROVED'] 
+                                            else 'info' if log.action_type in ['BLOOD_ADDED', 'HOSPITAL_REGISTERED']
+                                            else 'warning' if log.action_type in ['DONATION_REQUEST', 'TRANSFER_REQUEST']
+                                            else 'danger' if log.action_type == 'BLOOD_EXPIRED'
+                                            else 'secondary'
+                                        }}">
+                                            {{ log.action_type.replace('_', ' ').title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ log.hospital_name or 'System' }}</td>
+                                    <td>{{ log.description }}</td>
+                                    <td>{{ log.related_id or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <i class="bi bi-journal-x text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3">No Logs Found</h4>
+                        <p class="text-muted">System activity logs will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Statistics -->
+{% if logs %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ logs|length }}</div>
+            <div class="stat-label">Total Logs</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ logs|selectattr('action_type', 'equalto', 'DONATION_REQUEST')|list|length }}</div>
+            <div class="stat-label">Donation Requests</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ logs|selectattr('action_type', 'equalto', 'TRANSFER_APPROVED')|list|length }}</div>
+            <div class="stat-label">Transfers Approved</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ logs|selectattr('action_type', 'equalto', 'BLOOD_ADDED')|list|length }}</div>
+            <div class="stat-label">Blood Units Added</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function exportLogs() {
+    alert('Log export functionality would be implemented here.\n\nFeatures would include:\n- CSV/Excel export\n- Date range filtering\n- Action type filtering\n- Hospital-specific reports');
+}
+
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const actionFilter = document.getElementById('action_filter');
+    const hospitalFilter = document.getElementById('hospital_filter');
+    const dateFromFilter = document.getElementById('date_from');
+    const dateToFilter = document.getElementById('date_to');
+    const table = document.getElementById('logsTable');
+    
+    function filterLogs() {
+        if (!table) return;
+        
+        const rows = table.querySelectorAll('tbody tr');
+        const actionValue = actionFilter.value.toLowerCase();
+        const hospitalValue = hospitalFilter.value.toLowerCase();
+        const dateFrom = dateFromFilter.value ? new Date(dateFromFilter.value) : null;
+        const dateTo = dateToFilter.value ? new Date(dateToFilter.value) : null;
+        
+        rows.forEach(function(row) {
+            const actionCell = row.cells[2].textContent.toLowerCase();
+            const hospitalCell = row.cells[3].textContent.toLowerCase();
+            const dateCell = new Date(row.cells[1].textContent);
+            
+            let showRow = true;
+            
+            if (actionValue && !actionCell.includes(actionValue.replace('_', ' '))) {
+                showRow = false;
+            }
+            
+            if (hospitalValue && !hospitalCell.includes(hospitalValue)) {
+                showRow = false;
+            }
+            
+            if (dateFrom && dateCell < dateFrom) {
+                showRow = false;
+            }
+            
+            if (dateTo && dateCell > dateTo) {
+                showRow = false;
+            }
+            
+            row.style.display = showRow ? '' : 'none';
+        });
+    }
+    
+    actionFilter.addEventListener('change', filterLogs);
+    hospitalFilter.addEventListener('change', filterLogs);
+    dateFromFilter.addEventListener('change', filterLogs);
+    dateToFilter.addEventListener('change', filterLogs);
+    
+    // Remove duplicate hospital options
+    const hospitalOptions = Array.from(hospitalFilter.options);
+    const uniqueHospitals = [...new Set(hospitalOptions.map(opt => opt.value))];
+    hospitalFilter.innerHTML = '<option value="">All Hospitals</option>';
+    uniqueHospitals.forEach(hospital => {
+        if (hospital) {
+            const option = document.createElement('option');
+            option.value = hospital;
+            option.textContent = hospital;
+            hospitalFilter.appendChild(option);
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern_style.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f8f9fa;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .donor-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .donor-card {
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .card-header h1 {
+            margin: 0;
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-header p {
+            color: var(--text-secondary);
+            margin: 1rem 0 0 0;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        .card-body {
+            padding: 2.5rem;
+        }
+        .form-label {
+            color: #f8f9fa;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .form-control, .form-select {
+            background: #3a3a3a;
+            border: 2px solid #555;
+            color: #f8f9fa;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            background: #404040;
+            border-color: #dc2626;
+            box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.25);
+            color: #f8f9fa;
+        }
+        .form-control::placeholder {
+            color: #aaa;
+        }
+        .btn-donate {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .btn-donate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+            color: white;
+        }
+        .alert-custom {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid #dc2626;
+            color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .row {
+            margin-bottom: 1.5rem;
+        }
+        .hospital-info {
+            background: rgba(220, 38, 38, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="donor-container">
+        <div class="donor-card modern-card animate-fade-in">
+            <div class="card-header">
+                <h1>🩸 Blood Donation</h1>
+                <p>Save Lives. Donate Blood. Be a Hero.</p>
+            </div>
+            <div class="card-body-modern">
+                <form method="POST" id="donorForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label for="name" class="form-label-modern">Full Name *</label>
+                                <input type="text" class="form-control-modern" id="name" name="name" placeholder="Enter your full name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label for="age" class="form-label-modern">Age *</label>
+                                <input type="number" class="form-control-modern" id="age" name="age" min="18" max="65" placeholder="18-65 years" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="gender" class="form-label">Gender *</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City *</label>
+                                <select class="form-select" id="city" name="city" required>
+                                    <option value="">Select City</option>
+                                    {% for city in cities %}
+                                    <option value="{{ city.city }}">{{ city.city }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="blood_group" class="form-label">Blood Group *</label>
+                                <select class="form-select" id="blood_group" name="blood_group" required>
+                                    <option value="">Select Blood Group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B- (Rare)</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB- (Rare)</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O- (Universal Donor)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="hospital_id" class="form-label">Nearest Hospital *</label>
+                                <select class="form-select" id="hospital_id" name="hospital_id" required disabled>
+                                    <option value="">Select city first</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="preferred_time" class="form-label">Preferred Date & Time *</label>
+                                <input type="datetime-local" class="form-control" id="preferred_time" name="preferred_time" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-custom">
+                        <strong>📋 Donation Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Age: 18-65 years</li>
+                            <li>Weight: Minimum 50kg</li>
+                            <li>Wait 90 days between donations</li>
+                            <li>Bring valid ID proof</li>
+                        </ul>
+                    </div>
+
+                    <div class="hospital-info" id="hospitalInfo">
+                        <strong>🏥 Hospital will contact you to confirm the appointment</strong>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-modern btn-modern mt-4 w-100">
+                        🩸 Book Donation Appointment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set minimum date to today
+        document.getElementById('preferred_time').min = new Date().toISOString().slice(0, 16);
+
+        // Load hospitals when city is selected
+        document.getElementById('city').addEventListener('change', function() {
+            const city = this.value;
+            const hospitalSelect = document.getElementById('hospital_id');
+            const hospitalInfo = document.getElementById('hospitalInfo');
+            
+            if (city) {
+                fetch(`/get_hospitals/${city}`)
+                    .then(response => response.json())
+                    .then(hospitals => {
+                        hospitalSelect.innerHTML = '<option value="">Select Hospital</option>';
+                        hospitals.forEach(hospital => {
+                            hospitalSelect.innerHTML += `<option value="${hospital.hospital_id}">${hospital.name}</option>`;
+                        });
+                        hospitalSelect.disabled = false;
+                        hospitalInfo.style.display = 'block';
+                    });
+            } else {
+                hospitalSelect.innerHTML = '<option value="">Select city first</option>';
+                hospitalSelect.disabled = true;
+                hospitalInfo.style.display = 'none';
+            }
+        });
+
+        // Form validation
+        document.getElementById('donorForm').addEventListener('submit', function(e) {
+            const age = parseInt(document.getElementById('age').value);
+            const phone = document.getElementById('phone').value;
+            
+            if (age < 18 || age > 65) {
+                e.preventDefault();
+                alert('Age must be between 18 and 65 years');
+                return;
+            }
+            
+            if (!/^[0-9]{10}$/.test(phone)) {
+                e.preventDefault();
+                alert('Please enter a valid 10-digit phone number');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

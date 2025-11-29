@@ -1,0 +1,168 @@
+{% extends "base_dark.html" %}
+
+{% block title %}Blood Inventory - Hospital{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="bi bi-clipboard-data"></i> Blood Inventory Management</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('add_blood') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Add Blood Units
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if inventory %}
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="inventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Bag ID</th>
+                                    <th>Blood Group</th>
+                                    <th>Units Available</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Last Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in inventory %}
+                                <tr class="{% if item.expiry_date < moment().date() %}table-danger{% elif (item.expiry_date - moment().date()).days < 7 %}table-warning{% endif %}">
+                                    <td>{{ item.h_bag_id }}</td>
+                                    <td>
+                                        <span class="blood-group">{{ item.blood_group }}</span>
+                                    </td>
+                                    <td>
+                                        <strong>{{ item.units_available }}</strong>
+                                    </td>
+                                    <td>
+                                        {{ item.expiry_date.strftime('%Y-%m-%d') }}
+                                        {% set days_to_expiry = (item.expiry_date - moment().date()).days %}
+                                        {% if days_to_expiry < 0 %}
+                                            <span class="badge bg-danger">Expired</span>
+                                        {% elif days_to_expiry < 7 %}
+                                            <span class="badge bg-warning">{{ days_to_expiry }} days left</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if item.status == 'Available' else 'danger' if item.status == 'Expired' else 'secondary' }}">
+                                            {{ item.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ item.last_updated.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        {% if item.status == 'Available' %}
+                                            <button class="btn btn-sm btn-warning" onclick="markAsUsed({{ item.h_bag_id }})">
+                                                <i class="bi bi-check-circle"></i> Mark Used
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3">No Blood Inventory</h4>
+                        <p class="text-muted">Start by adding blood units to your inventory.</p>
+                        <a href="{{ url_for('add_blood') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Blood Units
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+{% if inventory %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ inventory|selectattr('status', 'equalto', 'Available')|list|length }}</div>
+            <div class="stat-label">Available Batches</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ inventory|sum(attribute='units_available') }}</div>
+            <div class="stat-label">Total Units</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ inventory|selectattr('status', 'equalto', 'Expired')|list|length }}</div>
+            <div class="stat-label">Expired Batches</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ inventory|selectattr('status', 'equalto', 'Used')|list|length }}</div>
+            <div class="stat-label">Used Batches</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function markAsUsed(bagId) {
+    if (confirm('Mark this blood bag as used?')) {
+        fetch(`/hospital/mark_used/${bagId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error marking blood as used');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error marking blood as used');
+        });
+    }
+}
+
+// Add search functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('inventoryTable');
+    if (table) {
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'form-control mb-3';
+        searchInput.placeholder = 'Search inventory...';
+        
+        table.parentNode.insertBefore(searchInput, table);
+        
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(function(row) {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

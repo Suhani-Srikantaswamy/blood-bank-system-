@@ -1,0 +1,116 @@
+{% extends "base_dark.html" %}
+
+{% block title %}Manage Hospitals - Admin{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="bi bi-building"></i> Hospital Management</h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('add_hospital') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Register Hospital
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if hospitals %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Hospital Name</th>
+                                    <th>City</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hospital in hospitals %}
+                                <tr>
+                                    <td>{{ hospital.hospital_id }}</td>
+                                    <td>
+                                        <strong>{{ hospital.hospital_name }}</strong><br>
+                                        <small class="text-muted">{{ hospital.address[:50] }}...</small>
+                                    </td>
+                                    <td>{{ hospital.city }}</td>
+                                    <td>{{ hospital.email }}</td>
+                                    <td>{{ hospital.phone }}</td>
+                                    <td>{{ hospital.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="viewHospital({{ hospital.hospital_id }})">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="resetPassword({{ hospital.hospital_id }})">
+                                            <i class="bi bi-key"></i> Reset
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3">No Hospitals Registered</h4>
+                        <p class="text-muted">Start by registering the first hospital.</p>
+                        <a href="{{ url_for('add_hospital') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Register Hospital
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hospital Statistics -->
+{% if hospitals %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ hospitals|length }}</div>
+            <div class="stat-label">Total Hospitals</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ hospitals|groupby('city')|list|length }}</div>
+            <div class="stat-label">Cities Covered</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ hospitals|selectattr('created_at')|select('greaterthan', moment().subtract(days=30))|list|length }}</div>
+            <div class="stat-label">New This Month</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ hospitals|selectattr('created_at')|select('greaterthan', moment().subtract(days=7))|list|length }}</div>
+            <div class="stat-label">New This Week</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function viewHospital(hospitalId) {
+    alert(`Hospital details view would be implemented here.\n\nFeatures would include:\n- Hospital profile\n- Blood inventory summary\n- Recent activities\n- Contact information`);
+}
+
+function resetPassword(hospitalId) {
+    if (confirm('Reset password for this hospital? They will need to contact admin for the new password.')) {
+        alert('Password reset functionality would be implemented here.\n\nProcess:\n1. Generate new temporary password\n2. Update database\n3. Send email to hospital\n4. Log the action');
+    }
+}
+</script>
+{% endblock %}

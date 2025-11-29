@@ -1,0 +1,2 @@
+-- Empty database - no sample data
+-- Add your own donors, blood inventory, and emergency requests

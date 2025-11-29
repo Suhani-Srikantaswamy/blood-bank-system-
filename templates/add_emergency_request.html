@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}New Emergency Request - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4>New Emergency Request</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="requester_name" class="form-label">Requester Name (Hospital/Individual)</label>
+                        <input type="text" class="form-control" id="requester_name" name="requester_name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="blood_group" class="form-label">Blood Group Required</label>
+                        <select class="form-control" id="blood_group" name="blood_group" required>
+                            <option value="">Select Blood Group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="units_required" class="form-label">Units Required</label>
+                        <input type="number" class="form-control" id="units_required" name="units_required" min="1" max="10" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="urgency" class="form-label">Urgency Level</label>
+                        <select class="form-control" id="urgency" name="urgency" required>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                            <option value="Low">Low</option>
+                        </select>
+                        <div class="form-text">
+                            <strong>Critical:</strong> Life-threatening emergency<br>
+                            <strong>High:</strong> Urgent surgery/treatment<br>
+                            <strong>Medium:</strong> Planned surgery<br>
+                            <strong>Low:</strong> Stock replenishment
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Emergency Request Guidelines:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Maximum 10 units per request</li>
+                            <li>Requests are subject to availability</li>
+                            <li>Critical requests get priority processing</li>
+                            <li>Hospital approval required</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('emergency_requests') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Submit Emergency Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base_modern.html" %}
+
+{% block title %}Emergency Requests - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-ambulance me-2"></i>Emergency Blood Requests</h2>
+        <p class="text-muted">Review and manage emergency blood requests from hospitals</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list me-2"></i>All Emergency Requests</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Request ID</th>
+                                <th>Hospital</th>
+                                <th>Blood Group</th>
+                                <th>Units</th>
+                                <th>Urgency</th>
+                                <th>Status</th>
+                                <th>Requested On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in requests %}
+                            <tr>
+                                <td><strong class="text-primary">#{{ request.request_id }}</strong></td>
+                                <td>{{ request.hospital_name or request.requester_name }}</td>
+                                <td><span class="blood-badge">{{ request.blood_group }}</span></td>
+                                <td><span class="badge bg-info">{{ request.units_required }} units</span></td>
+                                <td>
+                                    {% if request.urgency == 'Critical' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Critical
+                                        </span>
+                                    {% elif request.urgency == 'High' %}
+                                        <span class="badge bg-warning">High</span>
+                                    {% elif request.urgency == 'Medium' %}
+                                        <span class="badge bg-info">Medium</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Low</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.status == 'Pending' %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock me-1"></i>Pending
+                                        </span>
+                                    {% elif request.status == 'Approved' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Approved
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Rejected
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted">{{ request.requested_on.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if request.status == 'Pending' %}
+                                        <a href="{{ url_for('approve_request', request_id=request.request_id) }}" 
+                                           class="btn btn-sm btn-success me-1"
+                                           data-confirm="Are you sure you want to approve this request?">
+                                            <i class="fas fa-check me-1"></i>Approve
+                                        </a>
+                                        <a href="{{ url_for('reject_request', request_id=request.request_id) }}" 
+                                           class="btn btn-sm btn-danger"
+                                           data-confirm="Are you sure you want to reject this request?">
+                                            <i class="fas fa-times me-1"></i>Reject
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">No actions</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

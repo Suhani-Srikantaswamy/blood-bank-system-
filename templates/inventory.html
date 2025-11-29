@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Blood Inventory - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Blood Inventory</h2>
+            <a href="{{ url_for('add_blood') }}" class="btn btn-primary">Add Blood Bag</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Bag ID</th>
+                            <th>Donor</th>
+                            <th>Blood Group</th>
+                            <th>Collected On</th>
+                            <th>Expires On</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bag in inventory %}
+                        <tr>
+                            <td>{{ bag.bag_id }}</td>
+                            <td>{{ bag.donor_name or 'Unknown' }}</td>
+                            <td><span class="badge bg-danger">{{ bag.blood_group }}</span></td>
+                            <td>{{ bag.collected_on }}</td>
+                            <td>{{ bag.expires_on }}</td>
+                            <td>
+                                {% if bag.status == 'Available' %}
+                                    <span class="badge bg-success">Available</span>
+                                {% elif bag.status == 'Expired' %}
+                                    <span class="badge bg-warning">Expired</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Used</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,250 @@
+{% extends "base_dark.html" %}
+
+{% block title %}Hospital Dashboard - Blood Network{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-speedometer2"></i> Hospital Dashboard</h2>
+        <p class="text-muted">Welcome back, {{ session.hospital_name }}!</p>
+    </div>
+</div>
+
+<!-- Inventory Summary -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-droplet"></i> Current Blood Inventory</h4>
+            </div>
+            <div class="card-body">
+                {% if inventory %}
+                    <div class="row">
+                        {% for blood in inventory %}
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="stat-card">
+                                    <div class="blood-group">{{ blood.blood_group }}</div>
+                                    <div class="stat-number">{{ blood.total_units }}</div>
+                                    <div class="stat-label">Units Available</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('hospital_inventory') }}" class="btn btn-primary">
+                            <i class="bi bi-clipboard-data"></i> Manage Inventory
+                        </a>
+                        <a href="{{ url_for('add_blood') }}" class="btn btn-success ms-2">
+                            <i class="bi bi-plus-circle"></i> Add Blood
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3">No Blood Inventory</h5>
+                        <p class="text-muted">Start by adding blood units to your inventory.</p>
+                        <a href="{{ url_for('add_blood') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Blood Units
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Cards -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-check"></i> Pending Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Donor</th>
+                                    <th>Blood Group</th>
+                                    <th>Time</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in pending_appointments %}
+                                <tr>
+                                    <td>{{ appointment.name }}</td>
+                                    <td><span class="blood-group">{{ appointment.blood_group }}</span></td>
+                                    <td>{{ appointment.preferred_time.strftime('%m/%d %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('approve_appointment', appointment_id=appointment.appointment_id) }}" 
+                                           class="btn btn-sm btn-success" data-confirm="Approve this appointment?">
+                                            <i class="bi bi-check"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('hospital_appointments') }}" class="btn btn-outline-light">
+                            View All Appointments
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="bi bi-calendar-x"></i>
+                        <p>No pending appointments</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-arrow-down-circle"></i> Incoming Transfer Requests</h5>
+            </div>
+            <div class="card-body">
+                {% if incoming_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>From</th>
+                                    <th>Blood</th>
+                                    <th>Units</th>
+                                    <th>Urgency</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in incoming_requests %}
+                                <tr>
+                                    <td>{{ request.from_hospital[:15] }}...</td>
+                                    <td><span class="blood-group">{{ request.blood_group }}</span></td>
+                                    <td>{{ request.units_needed }}</td>
+                                    <td>
+                                        <span class="badge urgency-{{ request.urgency.lower() }}">
+                                            {{ request.urgency }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('approve_transfer', request_id=request.request_id) }}" 
+                                           class="btn btn-sm btn-success" data-confirm="Approve this transfer?">
+                                            <i class="bi bi-check"></i>
+                                        </a>
+                                        <a href="{{ url_for('deny_transfer', request_id=request.request_id) }}" 
+                                           class="btn btn-sm btn-danger" data-confirm="Deny this transfer?">
+                                            <i class="bi bi-x"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="bi bi-inbox"></i>
+                        <p>No incoming requests</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Outgoing Requests -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-arrow-up-circle"></i> Your Transfer Requests</h5>
+            </div>
+            <div class="card-body">
+                {% if outgoing_requests %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>To Hospital</th>
+                                    <th>Blood Group</th>
+                                    <th>Units</th>
+                                    <th>Status</th>
+                                    <th>Requested</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in outgoing_requests %}
+                                <tr>
+                                    <td>{{ request.to_hospital }}</td>
+                                    <td><span class="blood-group">{{ request.blood_group }}</span></td>
+                                    <td>{{ request.units_needed }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'success' if request.status == 'Approved' else 'danger' if request.status == 'Denied' else 'warning' }}">
+                                            {{ request.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ request.requested_on.strftime('%m/%d/%Y %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="bi bi-send"></i>
+                        <p>No outgoing requests</p>
+                    </div>
+                {% endif %}
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('request_blood') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Request Blood
+                    </a>
+                    <a href="{{ url_for('hospital_network') }}" class="btn btn-info ms-2">
+                        <i class="bi bi-diagram-3"></i> View Network
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-dark-card border-accent">
+            <div class="card-body text-center">
+                <h5 class="text-accent mb-3">Quick Actions</h5>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('add_blood') }}" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle"></i><br>Add Blood
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('hospital_appointments') }}" class="btn btn-info w-100">
+                            <i class="bi bi-calendar-check"></i><br>Appointments
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('request_blood') }}" class="btn btn-warning w-100">
+                            <i class="bi bi-arrow-up-circle"></i><br>Request Blood
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('hospital_network') }}" class="btn btn-primary w-100">
+                            <i class="bi bi-diagram-3"></i><br>Network View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base_premium.html" %}
+
+{% block title %}Inventory Management - BloodBank Pro{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom-dropdown.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 style="font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-2);">
+        Blood Inventory
+    </h1>
+    <p style="color: var(--text-secondary); font-size: 1rem;">
+        Manage your hospital's blood inventory and track expiry dates
+    </p>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert-premium alert-{{ 'danger' if category == 'error' else category }} mb-6">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="grid grid-cols-3 gap-6 mb-6">
+    <!-- Add Blood Units Form -->
+    <div class="card-premium animate-fade-in">
+        <div class="card-header-premium">
+            <h2 class="card-title">
+                <i class="bi bi-plus-circle"></i>
+                Add Blood Units
+            </h2>
+        </div>
+        <div class="card-body-premium">
+            <form method="POST" style="display: flex; flex-direction: column; gap: var(--space-4);">
+                <div class="form-group-premium">
+                    <label for="blood_group" class="form-label-premium">Blood Group</label>
+                    <select class="form-control-premium" id="blood_group" name="blood_group" placeholder="Select Blood Group" required>
+                        <option value="">Select Blood Group</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+                <div class="form-group-premium">
+                    <label for="units" class="form-label-premium">Units</label>
+                    <input type="number" class="form-control-premium" id="units" name="units" min="1" max="50" required>
+                </div>
+                <div class="form-group-premium">
+                    <label for="expires_on" class="form-label-premium">Expiry Date</label>
+                    <input type="date" class="form-control-premium" id="expires_on" name="expires_on" required>
+                </div>
+                <button type="submit" class="btn-premium btn-primary-premium">
+                    <i class="bi bi-plus-circle"></i>
+                    Add to Inventory
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Current Inventory -->
+    <div class="col-span-2">
+        <div class="card-premium animate-fade-in" style="animation-delay: 0.1s;">
+            <div class="card-header-premium">
+                <h2 class="card-title">
+                    <i class="bi bi-box-seam"></i>
+                    Current Inventory
+                </h2>
+            </div>
+            <div class="card-body-premium">
+                {% if inventory %}
+                    <div style="overflow-x: auto;">
+                        <table class="table-premium">
+                            <thead>
+                                <tr>
+                                    <th>Blood Group</th>
+                                    <th>Units Available</th>
+                                    <th>Expiry Date</th>
+                                    <th>Status</th>
+                                    <th>Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in inventory %}
+                                <tr>
+                                    <td>
+                                        <span class="badge-premium badge-danger">{{ item.blood_group }}</span>
+                                    </td>
+                                    <td style="font-weight: 600; color: var(--text-primary);">
+                                        {{ item.units_available }} units
+                                    </td>
+                                    <td style="font-family: monospace;">{{ item.expires_on.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if item.status == 'expiring' %}
+                                            <span class="badge-premium badge-warning">
+                                                <i class="bi bi-clock"></i> Expiring Soon
+                                            </span>
+                                        {% elif item.status == 'low' %}
+                                            <span class="badge-premium badge-danger">
+                                                <i class="bi bi-exclamation-triangle"></i> Low Stock
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-premium badge-success">
+                                                <i class="bi bi-check-circle"></i> Healthy
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="color: var(--text-secondary);">{{ item.last_updated.strftime('%m/%d %H:%M') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center" style="padding: var(--space-8);">
+                        <i class="bi bi-box" style="font-size: 3rem; color: var(--text-muted); margin-bottom: var(--space-4);"></i>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--space-4);">No inventory items found</p>
+                        <p style="color: var(--text-muted);">Add some blood units to get started</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inventory Guidelines -->
+<div class="card-premium animate-fade-in" style="animation-delay: 0.2s;">
+    <div class="card-header-premium">
+        <h2 class="card-title">
+            <i class="bi bi-info-circle"></i>
+            Inventory Guidelines
+        </h2>
+    </div>
+    <div class="card-body-premium">
+        <div class="grid grid-cols-3 gap-6">
+            <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); background: var(--bg-primary); border-radius: var(--radius); border-left: 4px solid var(--success);">
+                <i class="bi bi-check-circle" style="font-size: 1.5rem; color: var(--success);"></i>
+                <div>
+                    <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">Healthy Stock</div>
+                    <div style="color: var(--text-secondary); font-size: 0.875rem;">5+ units available, not expiring soon</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); background: var(--bg-primary); border-radius: var(--radius); border-left: 4px solid var(--accent-red);">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.5rem; color: var(--accent-red);"></i>
+                <div>
+                    <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">Low Stock</div>
+                    <div style="color: var(--text-secondary); font-size: 0.875rem;">Less than 5 units available</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); background: var(--bg-primary); border-radius: var(--radius); border-left: 4px solid var(--warning);">
+                <i class="bi bi-clock" style="font-size: 1.5rem; color: var(--warning);"></i>
+                <div>
+                    <div style="font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1);">Expiring Soon</div>
+                    <div style="color: var(--text-secondary); font-size: 0.875rem;">Expires within 7 days</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set minimum date to today
+    document.getElementById('expires_on').min = new Date().toISOString().split('T')[0];
+    
+    // Set default expiry to 90 days from today
+    const today = new Date();
+    const defaultExpiry = new Date(today.getTime() + (90 * 24 * 60 * 60 * 1000));
+    document.getElementById('expires_on').value = defaultExpiry.toISOString().split('T')[0];
+</script>
+<script src="{{ url_for('static', filename='js/custom-dropdown.js') }}"></script>
+{% endblock %}

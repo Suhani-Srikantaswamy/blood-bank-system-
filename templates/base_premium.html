@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Blood Bank System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-dropdown.css') }}">
+    {% block head %}{% endblock %}
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Premium Navigation -->
+        <nav class="navbar-premium">
+            <div class="main-content" style="padding-top: 0; padding-bottom: 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('dashboard') }}" class="navbar-brand-premium">
+                        <i class="bi bi-droplet-fill" style="color: var(--accent-red);"></i>
+                        BloodBank Pro
+                    </a>
+                    
+                    {% if session.user_type == 'hospital' %}
+                    <div class="nav-links">
+                        <a href="{{ url_for('dashboard') }}" class="nav-link-premium {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                            <i class="bi bi-speedometer2"></i>
+                            Dashboard
+                        </a>
+                        <a href="{{ url_for('hospital_inventory') }}" class="nav-link-premium {% if request.endpoint == 'hospital_inventory' %}active{% endif %}">
+                            <i class="bi bi-box-seam"></i>
+                            Inventory
+                        </a>
+                        <a href="{{ url_for('hospital_appointments') }}" class="nav-link-premium {% if request.endpoint == 'hospital_appointments' %}active{% endif %}">
+                            <i class="bi bi-calendar-check"></i>
+                            Appointments
+                        </a>
+                        <a href="{{ url_for('hospital_transfers') }}" class="nav-link-premium {% if request.endpoint == 'hospital_transfers' %}active{% endif %}">
+                            <i class="bi bi-arrow-left-right"></i>
+                            Transfers
+                        </a>
+                        <a href="{{ url_for('hospital_network') }}" class="nav-link-premium {% if request.endpoint == 'hospital_network' %}active{% endif %}">
+                            <i class="bi bi-diagram-3"></i>
+                            Network
+                        </a>
+                        
+                        <!-- User Menu -->
+                        <div class="d-flex align-items-center gap-4" style="margin-left: 2rem; padding-left: 2rem; border-left: 1px solid var(--border-color);">
+                            <span class="text-secondary" style="font-size: 0.875rem;">{{ session.user_name }}</span>
+                            <a href="{{ url_for('logout') }}" class="nav-link-premium">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6">
+                        {% for category, message in messages %}
+                            <div class="alert-premium alert-{{ 'danger' if category == 'error' else category }}-premium animate-fade-in">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if category == 'success' %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% elif category == 'error' or category == 'danger' %}
+                                        <i class="bi bi-exclamation-circle"></i>
+                                    {% elif category == 'warning' %}
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                    {% else %}
+                                        <i class="bi bi-info-circle"></i>
+                                    {% endif %}
+                                    {{ message }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Page Content -->
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/custom-dropdown.js') }}"></script>
+    
+    <script>
+        // Add smooth interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading states to buttons
+            document.querySelectorAll('.btn-premium').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (this.type === 'submit') {
+                        this.style.opacity = '0.7';
+                        this.style.pointerEvents = 'none';
+                        setTimeout(() => {
+                            this.style.opacity = '1';
+                            this.style.pointerEvents = 'auto';
+                        }, 2000);
+                    }
+                });
+            });
+
+            // Add fade-in animation to cards
+            const cards = document.querySelectorAll('.card-premium');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate-fade-in');
+            });
+        });
+    </script>
+</body>
+</html>

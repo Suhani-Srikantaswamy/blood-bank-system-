@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Emergency Requests - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Emergency Requests</h2>
+            <a href="{{ url_for('add_emergency_request') }}" class="btn btn-primary">New Emergency Request</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Hospital</th>
+                            <th>Requester</th>
+                            <th>Blood Group</th>
+                            <th>Units</th>
+                            <th>Urgency</th>
+                            <th>Status</th>
+                            <th>Requested On</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr>
+                            <td>{{ request.request_id }}</td>
+                            <td>{{ request.hospital_name or 'Unknown' }}</td>
+                            <td>{{ request.requester_name }}</td>
+                            <td><span class="badge bg-danger">{{ request.blood_group }}</span></td>
+                            <td>{{ request.units_required }}</td>
+                            <td>
+                                {% if request.urgency == 'Critical' %}
+                                    <span class="badge bg-danger">Critical</span>
+                                {% elif request.urgency == 'High' %}
+                                    <span class="badge bg-warning">High</span>
+                                {% elif request.urgency == 'Medium' %}
+                                    <span class="badge bg-info">Medium</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Low</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if request.status == 'Pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif request.status == 'Approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ request.requested_on.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if request.status == 'Pending' %}
+                                    <a href="{{ url_for('approve_request', request_id=request.request_id) }}" 
+                                       class="btn btn-sm btn-success">Approve</a>
+                                    <a href="{{ url_for('reject_request', request_id=request.request_id) }}" 
+                                       class="btn btn-sm btn-danger">Reject</a>
+                                {% else %}
+                                    <span class="text-muted">No actions</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

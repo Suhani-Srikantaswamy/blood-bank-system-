@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donation Portal - BloodBank Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0D1117 0%, #161B22 100%);
+            min-height: 100vh;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            background: linear-gradient(135deg, rgba(197, 48, 48, 0.1) 0%, transparent 100%);
+            margin-bottom: 2rem;
+        }
+
+        .hero-icon {
+            font-size: 3rem;
+            color: var(--accent-red);
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(197, 48, 48, 0.3));
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .donor-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem 3rem;
+        }
+
+        .donor-form-card {
+            background: #1A1F25;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-header {
+            padding: 2rem 2.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-red), transparent);
+            border-radius: 2px;
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            z-index: 2;
+            transition: color 0.15s ease;
+        }
+
+        .floating-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.15s ease-in-out;
+            outline: none;
+        }
+
+        .floating-input:focus {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 4px rgba(197, 48, 48, 0.1);
+            background: var(--bg-secondary);
+        }
+
+        .floating-input:focus + .floating-label,
+        .floating-input:not(:placeholder-shown) + .floating-label {
+            transform: translateY(-2.2rem) scale(0.85);
+            color: var(--accent-red);
+        }
+
+        .floating-input:focus ~ .input-icon {
+            color: var(--accent-red);
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 3rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+            pointer-events: none;
+            transition: all 0.15s ease-in-out;
+            background: #1A1F25;
+            padding: 0 0.5rem;
+        }
+
+        .hospital-dropdown {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .hospital-dropdown.show {
+            opacity: 1;
+            max-height: 200px;
+            margin-top: 1.5rem;
+        }
+
+        .guidelines-card {
+            background: rgba(197, 48, 48, 0.05);
+            border: 1px solid rgba(197, 48, 48, 0.2);
+            border-radius: 16px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .guidelines-header {
+            background: rgba(197, 48, 48, 0.1);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(197, 48, 48, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .guidelines-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .guidelines-body {
+            padding: 1.5rem;
+        }
+
+        .guidelines-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .guidelines-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .guidelines-list li:before {
+            content: "•";
+            color: var(--accent-red);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #E63946 0%, #C53030 100%);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(197, 48, 48, 0.3);
+            display: block;
+            margin: 2rem auto 0;
+            min-width: 200px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(197, 48, 48, 0.4);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .form-body {
+                padding: 1.5rem;
+            }
+
+            .donor-container {
+                padding: 0 0.5rem 2rem;
+            }
+
+            .floating-input {
+                padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+            }
+
+            .floating-label {
+                left: 2.5rem;
+            }
+
+            .input-icon {
+                left: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-icon">
+            <i class="bi bi-droplet-fill"></i>
+        </div>
+        <h1 class="hero-title">Save Lives Through Donation</h1>
+        <p class="hero-subtitle">Join our community of heroes making a difference every day</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="donor-container">
+        <div class="donor-form-card">
+            <!-- Form Header -->
+            <div class="form-header">
+                <h2 class="form-title">Donor Registration</h2>
+                <div class="form-divider"></div>
+            </div>
+
+            <!-- Form Body -->
+            <div class="form-body">
+                <form method="POST" id="donorForm">
+                    <!-- Personal Information Grid -->
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <i class="bi bi-person input-icon"></i>
+                            <input type="text" class="floating-input" id="name" name="name" placeholder=" " required>
+                            <label for="name" class="floating-label">Full Name</label>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="bi bi-calendar input-icon"></i>
+                            <input type="number" class="floating-input" id="age" name="age" min="18" max="65" placeholder=" " required>
+                            <label for="age" class="floating-label">Age (18-65)</label>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="bi bi-gender-ambiguous input-icon"></i>
+                            <select class="floating-input" id="gender" name="gender" required>
+                                <option value=""></option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <label for="gender" class="floating-label">Gender</label>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="bi bi-telephone input-icon"></i>
+                            <input type="tel" class="floating-input" id="phone" name="phone" pattern="[0-9]{10}" placeholder=" " required>
+                            <label for="phone" class="floating-label">Phone Number</label>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="bi bi-geo-alt input-icon"></i>
+                            <select class="floating-input" id="city" name="city" required>
+                                <option value=""></option>
+                                {% for city in cities %}
+                                <option value="{{ city.city }}">{{ city.city }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="city" class="floating-label">City</label>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="bi bi-droplet input-icon"></i>
+                            <select class="floating-input" id="blood_group" name="blood_group" required>
+                                <option value=""></option>
+                                <option value="A+">A+ (A Positive)</option>
+                                <option value="A-">A- (A Negative)</option>
+                                <option value="B+">B+ (B Positive)</option>
+                                <option value="B-">B- (B Negative) - Rare</option>
+                                <option value="AB+">AB+ (AB Positive)</option>
+                                <option value="AB-">AB- (AB Negative) - Rare</option>
+                                <option value="O+">O+ (O Positive)</option>
+                                <option value="O-">O- (Universal Donor) - Rare</option>
+                            </select>
+                            <label for="blood_group" class="floating-label">Blood Group</label>
+                        </div>
+                    </div>
+
+                    <!-- Hospital Selection (Hidden Initially) -->
+                    <div class="hospital-dropdown" id="hospitalDropdown">
+                        <div class="input-group">
+                            <i class="bi bi-hospital input-icon"></i>
+                            <select class="floating-input" id="hospital_id" name="hospital_id" required disabled>
+                                <option value="">Select nearest hospital</option>
+                            </select>
+                            <label for="hospital_id" class="floating-label">Nearest Hospital</label>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="input-group">
+                        <i class="bi bi-calendar-event input-icon"></i>
+                        <input type="datetime-local" class="floating-input" id="preferred_time" name="preferred_time" placeholder=" " required>
+                        <label for="preferred_time" class="floating-label">Preferred Date & Time</label>
+                    </div>
+
+                    <!-- Guidelines Card -->
+                    <div class="guidelines-card">
+                        <div class="guidelines-header">
+                            <i class="bi bi-clipboard-check" style="color: var(--accent-red);"></i>
+                            <h3 class="guidelines-title">Donation Guidelines</h3>
+                        </div>
+                        <div class="guidelines-body">
+                            <ul class="guidelines-list">
+                                <li>Must be between 18-65 years of age</li>
+                                <li>Minimum weight requirement: 50kg (110 lbs)</li>
+                                <li>Wait 90 days between blood donations</li>
+                                <li>Bring valid government-issued photo ID</li>
+                                <li>Have a light meal 2-3 hours before donation</li>
+                                <li>Stay hydrated - drink plenty of water</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-button">
+                        <i class="bi bi-heart-fill" style="margin-right: 0.5rem;"></i>
+                        Book My Donation Appointment
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set minimum date to today
+        document.getElementById('preferred_time').min = new Date().toISOString().slice(0, 16);
+
+        // Handle city selection and hospital loading
+        document.getElementById('city').addEventListener('change', function() {
+            const city = this.value;
+            const hospitalDropdown = document.getElementById('hospitalDropdown');
+            const hospitalSelect = document.getElementById('hospital_id');
+            
+            if (city) {
+                // Show hospital dropdown with animation
+                hospitalDropdown.classList.add('show');
+                
+                // Fetch hospitals for selected city
+                fetch(`/get_hospitals/${city}`)
+                    .then(response => response.json())
+                    .then(hospitals => {
+                        hospitalSelect.innerHTML = '<option value="">Select nearest hospital</option>';
+                        hospitals.forEach(hospital => {
+                            hospitalSelect.innerHTML += `<option value="${hospital.hospital_id}">${hospital.name}</option>`;
+                        });
+                        hospitalSelect.disabled = false;
+                    })
+                    .catch(error => {
+                        console.error('Error loading hospitals:', error);
+                        hospitalSelect.innerHTML = '<option value="">Error loading hospitals</option>';
+                    });
+            } else {
+                hospitalDropdown.classList.remove('show');
+                hospitalSelect.disabled = true;
+            }
+        });
+
+        // Form validation
+        document.getElementById('donorForm').addEventListener('submit', function(e) {
+            const age = parseInt(document.getElementById('age').value);
+            const phone = document.getElementById('phone').value;
+            
+            if (age < 18 || age > 65) {
+                e.preventDefault();
+                alert('Age must be between 18 and 65 years');
+                return;
+            }
+            
+            if (!/^[0-9]{10}$/.test(phone)) {
+                e.preventDefault();
+                alert('Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            // Add loading state to button
+            const button = this.querySelector('.submit-button');
+            button.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite; margin-right: 0.5rem;"></i>Processing...';
+            button.disabled = true;
+        });
+
+        // Handle floating labels for select elements
+        document.querySelectorAll('select.floating-input').forEach(select => {
+            select.addEventListener('change', function() {
+                if (this.value) {
+                    this.classList.add('has-value');
+                } else {
+                    this.classList.remove('has-value');
+                }
+            });
+        });
+
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

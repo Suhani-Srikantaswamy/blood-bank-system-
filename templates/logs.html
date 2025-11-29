@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}System Logs - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>System Activity Logs</h2>
+        <p class="text-muted">Track all blood inventory activities, emergency request approvals, and system events</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Log ID</th>
+                            <th>Related ID</th>
+                            <th>Action Type</th>
+                            <th>Details</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.log_id }}</td>
+                            <td>{{ log.related_id or 'N/A' }}</td>
+                            <td>
+                                {% if log.action_type == 'INSERT' %}
+                                    <span class="badge bg-success">INSERT</span>
+                                {% elif log.action_type == 'EXPIRY' %}
+                                    <span class="badge bg-warning">EXPIRY</span>
+                                {% elif log.action_type == 'EMERGENCY_APPROVAL' %}
+                                    <span class="badge bg-danger">EMERGENCY</span>
+                                {% else %}
+                                    <span class="badge bg-info">{{ log.action_type }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.details }}</td>
+                            <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tb̀ody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base_dark.html" %}
+
+{% block title %}Admin Login - Blood Network{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <i class="bi bi-shield-check text-accent" style="font-size: 4rem;"></i>
+            <h2 class="login-title">Admin Login</h2>
+        </div>
+        
+        <form method="POST" class="needs-validation" novalidate>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark-card border-accent">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                    <div class="invalid-feedback">Please provide your username.</div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark-card border-accent">
+                        <i class="bi bi-lock"></i>
+                    </span>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="invalid-feedback">Please provide your password.</div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 mb-3">
+                <i class="bi bi-shield-check"></i> Admin Login
+            </button>
+        </form>
+        
+        <div class="text-center">
+            <a href="{{ url_for('index') }}" class="btn btn-outline-light">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Demo Credentials -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card bg-dark-card border-accent">
+            <div class="card-header">
+                <h5><i class="bi bi-key"></i> Demo Admin Credentials</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Username:</strong> admin</p>
+                <p><strong>Password:</strong> admin123</p>
+                <hr>
+                <p class="text-muted small">
+                    <i class="bi bi-info-circle"></i>
+                    Admin has limited functionality - only hospital management and system monitoring.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

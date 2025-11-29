@@ -1,0 +1,148 @@
+{% extends "base_dark.html" %}
+
+{% block title %}Admin Dashboard - Blood Network{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-shield-check"></i> Admin Dashboard</h2>
+        <p class="text-muted">System monitoring and hospital management</p>
+    </div>
+</div>
+
+<!-- System Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_hospitals }}</div>
+            <div class="stat-label">Total Hospitals</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_donors }}</div>
+            <div class="stat-label">Registered Donors</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_appointments }}</div>
+            <div class="stat-label">Pending Appointments</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-number">{{ pending_transfers }}</div>
+            <div class="stat-label">Pending Transfers</div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Actions -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-building"></i> Hospital Management</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Manage hospital registrations and accounts</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_hospitals') }}" class="btn btn-primary">
+                        <i class="bi bi-list"></i> View All Hospitals
+                    </a>
+                    <a href="{{ url_for('add_hospital') }}" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Register New Hospital
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-journal-text"></i> System Monitoring</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Monitor system activities and logs</p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('admin_logs') }}" class="btn btn-info">
+                        <i class="bi bi-file-text"></i> View System Logs
+                    </a>
+                    <button class="btn btn-warning" onclick="generateReport()">
+                        <i class="bi bi-graph-up"></i> Generate Analytics
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Health -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-activity"></i> System Health</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                            <h6 class="mt-2">Database</h6>
+                            <span class="badge bg-success">Online</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                            <h6 class="mt-2">Web Server</h6>
+                            <span class="badge bg-success">Running</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                            <h6 class="mt-2">Blood Network</h6>
+                            <span class="badge bg-success">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Important Notice -->
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-dark-card border-accent">
+            <div class="card-body">
+                <h5 class="text-accent">
+                    <i class="bi bi-exclamation-triangle"></i> Admin Role Limitations
+                </h5>
+                <p class="mb-2">As per system design, admin role has limited functionality:</p>
+                <ul class="mb-0">
+                    <li>✅ Register and manage hospitals</li>
+                    <li>✅ View system logs and analytics</li>
+                    <li>✅ Monitor system health</li>
+                    <li>❌ Cannot approve blood transfers</li>
+                    <li>❌ Cannot add blood inventory</li>
+                    <li>❌ Cannot handle emergency requests</li>
+                </ul>
+                <p class="mt-3 text-muted">
+                    <small>This ensures real-time hospital-to-hospital communication without admin bottlenecks.</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generateReport() {
+    alert('Analytics report generation would be implemented here.\n\nFeatures would include:\n- Blood usage statistics\n- Hospital performance metrics\n- Donor engagement analytics\n- Emergency response times');
+}
+</script>
+{% endblock %}

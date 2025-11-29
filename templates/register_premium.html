@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Registration - BloodBank Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/premium.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-dropdown.css') }}">
+    <style>
+        .register-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-6);
+            background: var(--bg-primary);
+        }
+        
+        .register-card {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+        }
+        
+        .register-header {
+            padding: var(--space-8) var(--space-6) var(--space-6);
+            text-align: center;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+        }
+        
+        .register-logo {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+        }
+        
+        .register-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+        
+        .register-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .register-body {
+            padding: var(--space-6);
+        }
+
+        .form-group-premium {
+            margin-bottom: var(--space-4);
+        }
+
+        .form-label-premium {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+            font-size: 0.875rem;
+        }
+
+        .form-control-premium {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-premium:focus {
+            outline: none;
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 3px rgba(197, 48, 48, 0.1);
+            background: var(--bg-secondary);
+        }
+
+        .form-control-premium::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #E63946 0%, #C53030 100%);
+            color: white;
+            border: none;
+            padding: var(--space-4) var(--space-6);
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(197, 48, 48, 0.3);
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(197, 48, 48, 0.4);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            color: var(--accent-red);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            transition: all 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-red-hover);
+            transform: translateX(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .register-card {
+                margin: var(--space-4);
+            }
+            
+            .register-body {
+                padding: var(--space-4);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card animate-fade-in">
+            <div class="register-header">
+                <div class="register-logo">
+                    <i class="bi bi-hospital" style="color: var(--accent-red);"></i>
+                </div>
+                <h1 class="register-title">Hospital Registration</h1>
+                <p class="register-subtitle">Join the BloodBank Pro Network</p>
+            </div>
+            
+            <div class="register-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert-premium alert-{{ 'danger' if category == 'error' else category }}-premium mb-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if category == 'success' %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% else %}
+                                        <i class="bi bi-exclamation-circle"></i>
+                                    {% endif %}
+                                    {{ message }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" id="registerForm">
+                    <div class="form-group-premium">
+                        <label for="name" class="form-label-premium">Hospital Name</label>
+                        <input type="text" class="form-control-premium" id="name" name="name" placeholder="Enter hospital name" required>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label for="email" class="form-label-premium">Email Address</label>
+                        <input type="email" class="form-control-premium" id="email" name="email" placeholder="hospital@example.com" required>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label for="password" class="form-label-premium">Password</label>
+                        <input type="password" class="form-control-premium" id="password" name="password" placeholder="Create a secure password" required>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label for="city" class="form-label-premium">City</label>
+                        <input type="text" class="form-control-premium" id="city" name="city" placeholder="Hospital city location" required>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label for="address" class="form-label-premium">Address</label>
+                        <textarea class="form-control-premium" id="address" name="address" rows="3" placeholder="Complete hospital address"></textarea>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label for="phone" class="form-label-premium">Phone Number</label>
+                        <input type="tel" class="form-control-premium" id="phone" name="phone" placeholder="Hospital contact number">
+                    </div>
+
+                    <button type="submit" class="btn-register" id="registerBtn">
+                        <span class="btn-text">
+                            <i class="bi bi-hospital" style="margin-right: 0.5rem;"></i>
+                            Register Hospital
+                        </span>
+                        <span class="btn-loading" style="display: none;">
+                            <i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite; margin-right: 0.5rem;"></i>
+                            Processing...
+                        </span>
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('login') }}" class="back-link">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Login
+                    </a>
+                </div>
+
+                <div class="text-center mt-4">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+                        By registering, you agree to our terms of service<br>
+                        and privacy policy for healthcare data management.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form submission with loading state
+        document.getElementById('registerForm').addEventListener('submit', function() {
+            const button = document.getElementById('registerBtn');
+            const text = button.querySelector('.btn-text');
+            const loading = button.querySelector('.btn-loading');
+            
+            text.style.display = 'none';
+            loading.style.display = 'inline';
+            button.disabled = true;
+        });
+
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <script src="{{ url_for('static', filename='js/custom-dropdown.js') }}"></script>
+    <script>
+        // Form validation
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address');
+                return;
+            }
+            
+            // Password strength check
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

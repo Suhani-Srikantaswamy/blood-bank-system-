@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Donors - Blood Bank System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Donor Management</h2>
+            <a href="{{ url_for('add_donor') }}" class="btn btn-primary">Add New Donor</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Blood Group</th>
+                            <th>Last Donation</th>
+                            <th>Eligible</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for donor in donors %}
+                        <tr>
+                            <td>{{ donor.donor_id }}</td>
+                            <td>{{ donor.name }}</td>
+                            <td>{{ donor.age }}</td>
+                            <td>{{ donor.gender }}</td>
+                            <td><span class="badge bg-danger">{{ donor.blood_group }}</span></td>
+                            <td>{{ donor.last_donation_date or 'Never' }}</td>
+                            <td>
+                                {% if donor.last_donation_date %}
+                                    <span class="badge bg-warning">Check manually</span>
+                                {% else %}
+                                    <span class="badge bg-success">Eligible</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

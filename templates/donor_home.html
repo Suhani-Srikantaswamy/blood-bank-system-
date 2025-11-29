@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Portal - Blood Bank System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+        <div class="container">
+            <a class="navbar-brand" href="#">🩸 Blood Bank - Donor Portal</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="{{ url_for('login') }}">Hospital Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🩸 Welcome, Blood Donor!</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead">Thank you for your willingness to donate blood and save lives!</p>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5>📋 Register as Donor</h5>
+                                        <p>Add your information to our donor database</p>
+                                        <a href="{{ url_for('add_donor') }}" class="btn btn-primary">Register Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5>🏥 Find Hospitals</h5>
+                                        <p>Contact hospitals for donation appointments</p>
+                                        <button class="btn btn-info" onclick="alert('Contact your nearest hospital for donation appointments')">Find Hospitals</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5>📊 Current Blood Needs</h5>
+                            <div class="alert alert-info">
+                                <strong>Most Needed:</strong> O-, O+, A-, B-<br>
+                                <strong>Donation Eligibility:</strong> Must wait 90 days between donations
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
